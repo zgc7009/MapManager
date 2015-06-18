@@ -24,6 +24,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.1.1'
     compile 'com.google.android.gms:play-services:7.3.0'
     compile 'com.google.maps.android:android-maps-utils:0.3+'
-    compile 'com.mcxiaoke.volley:library:1.0.+'
+    compile 'com.mcxiaoke.volley:library:1.0.+'     // TODO get compiled jar
     compile files('libs/gson-2.2.4.jar')
 }

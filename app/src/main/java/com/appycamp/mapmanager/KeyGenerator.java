@@ -6,6 +6,6 @@ package com.appycamp.mapmanager;
 public class KeyGenerator {
 
     public static String generateKey(String suffix){
-        return "com.appycamp.mapmanager.KEY." + suffix;
+        return KeyGenerator.class.getPackage().getName() + ".KEY." + suffix;
     }
 }

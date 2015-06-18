@@ -1,4 +1,13 @@
 <resources>
     <string name="app_name">MapManager</string>
     <string name="title_activity_maps">Map</string>
+
+    <!-- Network Errors -->
+    <string name="network_error_timeout">Request timed out. Please check your connection.</string>
+    <string name="network_error_auth">Request failed to authorize. Please check your connection.</string>
+    <string name="network_error_server">Unable to contact server. Please check your connection.</string>
+    <string name="network_error_network">Network request failed. Please check your connection.</string>
+    <string name="network_error_parse">Unable to parse response. Please check your connection.</string>
+    <string name="network_vendor_error">Unable to fetch Vendor information. Please check your connection.</string>
+    <string name="network_user_error">Unable to fetch user information. Please check your connection.</string>
 </resources>

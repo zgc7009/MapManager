@@ -15,6 +15,10 @@ public class MainApplication extends Application{
         return mApplication;
     }
 
+    public static String getAplicationPackageName(){
+        return MainApplication.class.getPackage().getName();
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();

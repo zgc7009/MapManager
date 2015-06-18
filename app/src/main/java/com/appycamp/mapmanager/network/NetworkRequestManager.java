@@ -7,6 +7,8 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
+import com.appycamp.mapmanager.markers.MyMarkerManager;
+import com.appycamp.mapmanager.network.models.MarkerModel;
 import com.appycamp.mapmanager.polylines.PolylineGenerator;
 
 /**
@@ -14,7 +16,6 @@ import com.appycamp.mapmanager.polylines.PolylineGenerator;
  */
 public class NetworkRequestManager implements INetworkRequestManager {
 
-    public static final String LOGIN_REQUEST = "LOGIN_REQUEST";
     private static final int TIME_OUT_POLICY_DURATION = 5000;
 
     /**
@@ -50,19 +51,18 @@ public class NetworkRequestManager implements INetworkRequestManager {
         }
     }
 
-    @Override
-    public void fetchPolylines(String requestUrl, Response.Listener<PolylineGenerator.DirectionsResult> responseListern,
-                               Response.ErrorListener errorListener) {
-                BaseRequest<PolylineGenerator.DirectionsResult> request = new BaseRequest(Request.Method.GET,
-                        requestUrl, errorListener, responseListern, new BaseRequest.ClassParseStrategy(PolylineGenerator.DirectionsResult.class));
-                addToRequestQueue(request);
-    }
-
     private <T> void addToRequestQueue(BaseRequest<T> request){
         request.setRetryPolicy(new DefaultRetryPolicy(TIME_OUT_POLICY_DURATION,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         getRequestQueue().add(request);
     }
 
+    @Override
+    public void sendMarkerRequest(String ip, Response.Listener<MarkerModel> listener, Response.ErrorListener errorListener) {
+        BaseRequest<MarkerModel> request = new BaseRequest<>(Request.Method.GET,
+                UrlGenerator.getIpSpecificUrl(UrlGenerator.Precision.CITY, ip)
+                , errorListener, listener, new BaseRequest.ClassParseStrategy(MarkerModel.class));
+        addToRequestQueue(request);
+    }
 
 }

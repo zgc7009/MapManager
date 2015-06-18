@@ -25,11 +25,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- *
  * A Volley BaseRequest that can handle most request types.
  *
- * @param <T>
- *            The type of the response, which is determined by the
+ * @param <T> The type of the response, which is determined by the
  *            ResponseParseStrategy<T>
  */
 public class BaseRequest<T> extends Request<T> {
@@ -133,7 +131,6 @@ public class BaseRequest<T> extends Request<T> {
 
         try {
             toParse = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
-            Log.d(getClass().getSimpleName(), "Our parse response is " + toParse);
         } catch (UnsupportedEncodingException e) {
             toParse = new String(response.data);
         }

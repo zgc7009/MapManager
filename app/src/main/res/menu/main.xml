@@ -2,15 +2,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/use_overlay"
-        android:title="Overlay" />
+        android:id="@+id/show_markers"
+        android:title="Markers" />
 
     <item
-        android:id="@+id/use_polyline"
-        android:title="Polyline" />
+        android:id="@+id/show_polyline_overlay"
+        android:title="Polyline Overlay" />
 
     <item
-        android:id="@+id/user_hybrid"
-        android:title="Hybrid" />
+        android:id="@+id/show_polyline_map"
+        android:title="Polyline Map" />
+
+    <item
+        android:id="@+id/show_polyline_hybrid"
+        android:title="Polyline Hybrid" />
 
 </menu>

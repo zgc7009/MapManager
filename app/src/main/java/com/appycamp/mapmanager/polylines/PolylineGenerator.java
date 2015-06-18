@@ -20,7 +20,6 @@ import java.util.Random;
  */
 public class PolylineGenerator {
 
-    private static final boolean VIA_NETWORKING = false;
     private static final double MAX_POLYLINE_DISTANCE = .5;
 
     public interface OnPolylineCreatedListener{
@@ -28,50 +27,6 @@ public class PolylineGenerator {
     }
 
     public static void generatePolyline(final OnPolylineCreatedListener listener){
-        /*
-        Attempt to use google directions to pull in actual polylines for directions via roads to
-        randomly generated positions on the map. The downside, super low quota means that this
-        isn't really a viable means of testing.
-         */
-        if(VIA_NETWORKING){
-            LatLng endLatLng = generateDestinationLatLng(MapsActivity.TRANS_LOC_LAT, MapsActivity.TRANS_LOC_LNG);
-            String url = getDestinationUrl(endLatLng.latitude, endLatLng.longitude);
-            NetworkRequestManager.getInstance().fetchPolylines(url, new Response.Listener<DirectionsResult>() {
-                @Override
-                public void onResponse(DirectionsResult directionsResult) {
-                    if (directionsResult != null && directionsResult.routes.size() != 0) {
-                        String encodedPoints = directionsResult.routes.get(0).overview_polyLine.points;
-                        List<LatLng> latLngs = PolyUtil.decode(encodedPoints);
-                        if (listener != null)
-                            listener.onPolylineCreated(new PolylineOptions()
-                                    .addAll(latLngs)
-                                    .width(3)
-                                    .color(0x7F0000FF));
-                    }
-                    else
-                        reportError(listener, new VolleyError("Null response"));
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    reportError(listener, error);
-                }
-            });
-
-        }
-        else
-            new GeneratePolyline(listener).execute();
-    }
-
-    /**
-     * If we get an error in our networking call (whether it be a bad response, or an actual error response from the server)
-     * we can report it through this call which will log our response and generate a dummy polyline in its place
-     *
-     * @param listener
-     * @param error
-     */
-    private static void reportError(OnPolylineCreatedListener listener, VolleyError error){
-        Log.e(PolylineGenerator.class.getSimpleName(), "Error: " + error == null ? "Bad network call!" : error.getMessage());
         new GeneratePolyline(listener).execute();
     }
 
@@ -89,19 +44,6 @@ public class PolylineGenerator {
         double endLat = startLat + (coordGenerator.nextDouble() * (xPosDir ? 1 : -1));
         double endLng = startLng + (coordGenerator.nextDouble() * (yPosDir ? 1 : -1));
         return DistanceConverter.shrinkCoordsToRange(startLat, startLng, endLat, endLng, MAX_POLYLINE_DISTANCE, DistanceConverter.Unit.MILES);
-    }
-
-    /**
-     * Will generate our url for Google Directions from our generic starting point to our randomly generated destination point
-     * to be utilized in network calls.
-     *
-     * @param latitude
-     * @param longitude
-     * @return
-     */
-    private static String getDestinationUrl(double latitude, double longitude) {
-        return "https://maps.googleapis.com/maps/api/directions/json?origin=" + MapsActivity.TRANS_LOC_LAT + "," +
-                MapsActivity.TRANS_LOC_LAT + "&destination=" + latitude + "," + longitude; // + "&key=" + MapsActivity.API_KEY;
     }
 
     private static class GeneratePolyline extends AsyncTask<Void, Void, PolylineOptions> {
@@ -136,20 +78,5 @@ public class PolylineGenerator {
                     .width(3)
                     .color(0x7FFF0000);
         }
-    }
-
-    /*
-     * Classes to utilize for Volley parsing of Google Directions response
-     */
-    public static class DirectionsResult {
-        public List<Route> routes;
-    }
-
-    public static class Route {
-        public OverviewPolyLine overview_polyLine;
-    }
-
-    public static class OverviewPolyLine {
-        public String points;
     }
 }
