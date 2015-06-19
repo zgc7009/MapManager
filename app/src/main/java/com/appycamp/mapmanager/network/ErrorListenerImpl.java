@@ -18,6 +18,11 @@ import com.android.volley.VolleyError;
 import com.appycamp.mapmanager.R;
 
 
+/**
+ * When I want less explicit error messages I can implement this generic implementation of the
+ * Volley ErrorListener that will report an error corresponding to the network result code as
+ * well as handling the visibility of the ProgressBar associated with the network call.
+ */
 public abstract class ErrorListenerImpl implements Response.ErrorListener {
 
     private final Context context;

@@ -1,27 +1,7 @@
-Create IP style EditText for range
-    - table row of 4 edit texts separated by "." TextViews
-    - TextWatcher to see if it has 3 numbers and needs to go to the next
-        - also checks to make sure a valid number is entered (xml textInput helps here)
-    - For range, the logic is something like
-            if(rightIp.ip[n] > leftIp.ip[n] || (n > 0 && rightIp.ip[n-1] > leftIp.ip[n-1]) <- for n = 0 -> 3
-                in range
-        the idea is that if the right (greater) ip addresses number in ip space [n] is greater than the
-            left's OR the right's ip address in the previous ip space [n-1] is greater than the left's [n-1]
-            space we would be in range:
-                small example from ip[0].ip[1] range
-                    1.4 -> 2.3 -> n passes for 0 (2 > 1) and passes for 1 (3 > 4 || 2 > 1) therefore in range
-
-
-Test network calls with IP's and listener response
-
 Make sure to properly check the db via our ContentProvider to see if we have the ip stored before going to the network
 
 Keep a local cache of (x [see how big we can get it before our heap gets too big]) IPs to reduce db/network calls
 
-Complete clustering
-    - Determine if just adding all markers to a ClusterManager will do or if I need a list/array/custom implementation
-
 BONUS
    Testing with Espresso
-        https://www.youtube.com/watch?feature=player_embedded&v=qtKx1WxK7cw
    Finish Polyline implementation

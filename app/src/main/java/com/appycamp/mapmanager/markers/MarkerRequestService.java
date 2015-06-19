@@ -9,6 +9,7 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.appycamp.mapmanager.KeyGenerator;
+import com.appycamp.mapmanager.R;
 import com.appycamp.mapmanager.network.NetworkRequestManager;
 import com.appycamp.mapmanager.network.UrlGenerator;
 import com.appycamp.mapmanager.network.models.MarkerModel;
@@ -66,10 +67,11 @@ public class MarkerRequestService extends IntentService {
 
                         if (response != null && !(response.getLatitude() == 0 && response.getLongitude() == 0)) {
                             mMarkerManager.addMarker(response);
-                            mMarkerManager.getListener().onMarkerRequestComplete(true);
+                            sendSuccessResponse(true);
                         } else {
-                            Toast.makeText(MarkerRequestService.this, "Unable to retrieve location for " + mCurrIp, Toast.LENGTH_LONG).show();
-                            mMarkerManager.getListener().onMarkerRequestComplete(false);
+                            Toast.makeText(MarkerRequestService.this,
+                                    getString(R.string.toast_marker_pull_error_prefix) + mCurrIp, Toast.LENGTH_LONG).show();
+                            sendSuccessResponse(false);
                         }
 
                         incrementIpNetworkCall();
@@ -78,11 +80,17 @@ public class MarkerRequestService extends IntentService {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(MarkerRequestService.this, "Error, " + error.getMessage(), Toast.LENGTH_LONG).show();
-                        mMarkerManager.getListener().onMarkerRequestComplete(false);
+                        Toast.makeText(MarkerRequestService.this,
+                                getString(R.string.toast_generic_error_prefix) + error.getMessage(), Toast.LENGTH_LONG).show();
+                        sendSuccessResponse(false);
                         incrementIpNetworkCall();
                     }
                 });
+    }
+
+    private void sendSuccessResponse(boolean success){
+        if(mMarkerManager.getListener() != null)
+            mMarkerManager.getListener().onMarkerRequestComplete(success);
     }
 
     private void incrementIpNetworkCall(){

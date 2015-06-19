@@ -5,8 +5,20 @@ import java.net.UnknownHostException;
 
 /**
  * Created by Zach on 6/17/2015.
+ *
+ * THESE METHODS SHOULD BE ACCESSED FROM A BACKGROUND THREAD
  */
 public class IpManager {
+
+    public static boolean validateIp(String ip){
+        try{
+            InetAddress.getByName(ip);
+        }catch(UnknownHostException e){
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
 
     /**
      * Given a previous IP (initially pass the start IP of the range) will return the next IP if one exists
@@ -22,6 +34,7 @@ public class IpManager {
         else
             return longToIp(ipToLong(previousIp) + 1);
     }
+
 
     /**
      * Will validate our IP range to make sure they are in the appropriate order
@@ -83,4 +96,5 @@ public class IpManager {
 
         return sb.toString();
     }
+
 }

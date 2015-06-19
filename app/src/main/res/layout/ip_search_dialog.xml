@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="@dimen/dp_large" >
+
+    <include
+        android:id="@+id/ip_search_start"
+        layout="@layout/layout_ip_search" />
+
+    <include
+        android:id="@+id/ip_search_end"
+        layout="@layout/layout_ip_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ip_search_start"/>
+
+
+    <Button
+        android:id="@+id/button_ip_submit"
+        android:layout_below="@id/ip_search_end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dp_large"
+        android:text="@string/ip_dialog_button_submit"
+        android:textColor="@android:color/white"
+        android:background="@android:color/holo_blue_light" />
+
+    <ProgressBar
+        android:id="@+id/progress_network"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone"/>
+
+</RelativeLayout>

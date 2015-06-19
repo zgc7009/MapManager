@@ -1,15 +1,12 @@
 package com.appycamp.mapmanager;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
+import com.appycamp.mapmanager.markers.IpSearchDialog;
+import com.appycamp.mapmanager.markers.MarkerClusterItem;
 import com.appycamp.mapmanager.markers.MarkerRequestService;
 import com.appycamp.mapmanager.markers.MyMarkerManager;
-import com.appycamp.mapmanager.network.NetworkRequestManager;
-import com.appycamp.mapmanager.network.UrlGenerator;
 import com.appycamp.mapmanager.network.models.MarkerModel;
 import com.appycamp.mapmanager.polylines.PolylineManager;
 import com.appycamp.mapmanager.tiles.CustomTileProvider;
@@ -18,6 +15,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -29,7 +27,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 public class MapsActivity extends AppCompatActivity{
@@ -42,15 +42,17 @@ public class MapsActivity extends AppCompatActivity{
     public static final double TRANS_LOC_LAT = 35.876189;
     public static final double TRANS_LOC_LNG = -78.843486;
     public static final LatLng officeCoords = new LatLng(TRANS_LOC_LAT, TRANS_LOC_LNG);
-    private static final int DEFAULT_ZOOM = (int) ((CustomTileProvider.MAX_ZOOM_THRESHOLD + CustomTileProvider.MIN_ZOOM_THRESHOLD) / 2);
+    private static final int MARKER_ZOOM = 3;
+    private static final int POLYLINE_ZOOM = (int) ((CustomTileProvider.MAX_ZOOM_THRESHOLD + CustomTileProvider.MIN_ZOOM_THRESHOLD) / 2);
     public static final String API_KEY = "AIzaSyCD2VzaeYtBzIrMFpNrR9WAkjYz-tBBKDI";
+
 
     private enum DrawType{
         MARKER, POLYLINE_OVERLAY, POLYLINE_MAP, POLYLINE_HYBRID
     }
     private DrawType mDrawType;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    private ClusterManager<MyMarkerManager.MarkerClusterItem> mClusterManager;
+    private ClusterManager<MarkerClusterItem> mClusterManager;
     private ProgressBar mNetworkProgress;
 
     @Override
@@ -61,6 +63,7 @@ public class MapsActivity extends AppCompatActivity{
         setUpMapIfNeeded();
     }
 
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -70,12 +73,25 @@ public class MapsActivity extends AppCompatActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main, menu);
+        inflater.inflate(mDrawType == DrawType.MARKER? R.menu.marker: R.menu.polyline, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.search){
+            RelativeLayout searchDialog = (RelativeLayout) getLayoutInflater().inflate(R.layout.ip_search_dialog, null);
+            new IpSearchDialog(searchDialog, new IpSearchDialog.OnIpSearchListener(){
+                @Override
+                public void onSearchRequested(String startIp, String endIp) {
+                    setUpClusterer();
+                    requestIpScan(startIp, endIp);
+                }
+            });
+            return true;
+        }
+
+
         boolean working = false;
         if(!working){
             Toast.makeText(this, "Switching between types is currently buggy", Toast.LENGTH_LONG).show();
@@ -176,35 +192,7 @@ public class MapsActivity extends AppCompatActivity{
             mNetworkProgress.setVisibility(View.VISIBLE);
 
             setUpClusterer();
-
-            MyMarkerManager.getInstance(new MyMarkerManager.MarkerRequestCompleteListener() {
-                @Override
-                public void onMarkerRequestComplete(boolean success) {
-                    if (success) {
-                        MarkerModel marker = MyMarkerManager.getInstance().getMostRecentMarker();
-                        addMarkerToCluster(marker);
-                        /*
-                        mMap.addMarker(new MarkerOptions()
-                                .position(new LatLng(marker.getLatitude(), marker.getLongitude()))
-                                .title(marker.getIpAddress()));
-                                */
-                    }
-                    mNetworkProgress.setProgress(MarkerRequestService.getCurrProgressStatus());
-                }
-
-                @Override
-                public void onAllMarkersRequested() {
-                    Toast.makeText(MapsActivity.this, "Have completed our network calls with " + MyMarkerManager.getInstance().getMarkerModelCount()
-                                + " IPs marked of " + MarkerRequestService.IP_TOTAL_COUNT + " possible IPs", Toast.LENGTH_LONG).show();
-                    findViewById(R.id.progress_map).setVisibility(View.GONE);
-                }
-            });
-
-            //TODO add a TextWatcher to an EditText field and Use MarkerQueryTask on text change
-            Intent markerService = new Intent(this, MarkerRequestService.class);
-            markerService.putExtra(MarkerRequestService.START_IP_KEY, MY_HOME_IP);
-            markerService.putExtra(MarkerRequestService.END_IP_KEY, DUMMY_TEST_IP);
-            startService(markerService);
+            finalizeMap();
         }
 
         else if(PolylineManager.getInstance() == null)
@@ -223,12 +211,45 @@ public class MapsActivity extends AppCompatActivity{
         // Point the map's listeners at the listeners implemented by the cluster manager.
         mMap.setOnCameraChangeListener(mClusterManager);
         mMap.setOnMarkerClickListener(mClusterManager);
-        finalizeMap();
     }
 
     private void addMarkerToCluster(MarkerModel marker){
         if(marker != null)
-            mClusterManager.addItem(new MyMarkerManager.MarkerClusterItem(marker.getLatitude(), marker.getLongitude()));
+            mClusterManager.addItem(new MarkerClusterItem(marker.getLatitude(), marker.getLongitude()));
+    }
+
+    private void requestIpScan(String startIp, String endIp){
+
+        MyMarkerManager.getInstance(new MyMarkerManager.MarkerRequestCompleteListener() {
+            @Override
+            public void onMarkerRequestComplete(boolean success) {
+                if (success) {
+                    MarkerModel marker = MyMarkerManager.getInstance().getMostRecentMarker();
+                    addMarkerToCluster(marker);
+                        /*
+                        mMap.addMarker(new MarkerOptions()
+                                .position(new LatLng(marker.getLatitude(), marker.getLongitude()))
+                                .title(marker.getIpAddress()));
+                                */
+                }
+                mNetworkProgress.setProgress(MarkerRequestService.getCurrProgressStatus());
+            }
+
+            @Override
+            public void onAllMarkersRequested() {
+                String[] markerRequest = getResources().getStringArray(R.array.toast_ip_success_result);
+                Toast.makeText(MapsActivity.this, markerRequest[0]+ MyMarkerManager.getInstance().getMarkerModelCount()
+                        + markerRequest[1] + MarkerRequestService.IP_TOTAL_COUNT + markerRequest[2], Toast.LENGTH_LONG).show();
+                findViewById(R.id.progress_map).setVisibility(View.GONE);
+                mNetworkProgress.setProgress(0);
+            }
+        });
+
+
+        Intent markerService = new Intent(MapsActivity.this, MarkerRequestService.class);
+        markerService.putExtra(MarkerRequestService.START_IP_KEY, startIp);
+        markerService.putExtra(MarkerRequestService.END_IP_KEY, endIp);
+        startService(markerService);
     }
 
     private void drawPolylines(int polylinePosition, PolylineOptions polylineOptions){
@@ -255,9 +276,17 @@ public class MapsActivity extends AppCompatActivity{
         }
     }
 
-    private void finalizeMap(){
-        mClusterManager.addItem(new MyMarkerManager.MarkerClusterItem(TRANS_LOC_LAT, TRANS_LOC_LNG));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(officeCoords, DEFAULT_ZOOM));
+    private void finalizeMap() {
+        mMap.addMarker(new MarkerOptions()
+                .title(getString(R.string.marker_title_trans_loc))
+                .snippet(getString(R.string.marker_label_trans_loc))
+                .position(new LatLng(TRANS_LOC_LAT, TRANS_LOC_LNG))
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+
+        if(mDrawType == DrawType.MARKER)
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(officeCoords, MARKER_ZOOM));
+        else
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(officeCoords, POLYLINE_ZOOM));
 
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setZoomGesturesEnabled(true);
