@@ -51,7 +51,9 @@ public class MapsActivity extends AppCompatActivity{
         MARKER, POLYLINE_OVERLAY, POLYLINE_MAP, POLYLINE_HYBRID
     }
     private DrawType mDrawType;
+    
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    private MyMarkerManager mMarkerManager;
     private ClusterManager<MarkerClusterItem> mClusterManager;
     private ProgressBar mNetworkProgress;
 
@@ -60,6 +62,7 @@ public class MapsActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         mDrawType = DrawType.values()[getIntent().getExtras() == null? 0: getIntent().getExtras().getInt(DRAW_TYPE_KEY, 0)];
+        mMarkerManager = MyMarkerManager.getInstance();
         setUpMapIfNeeded();
     }
 
@@ -220,17 +223,12 @@ public class MapsActivity extends AppCompatActivity{
 
     private void requestIpScan(String startIp, String endIp){
 
-        MyMarkerManager.getInstance(new MyMarkerManager.MarkerRequestCompleteListener() {
+        mMarkerManager = MyMarkerManager.getInstance(new MyMarkerManager.MarkerRequestCompleteListener() {
             @Override
             public void onMarkerRequestComplete(boolean success) {
                 if (success) {
-                    MarkerModel marker = MyMarkerManager.getInstance().getMostRecentMarker();
+                    MarkerModel marker = mMarkerManager.getMostRecentMarker();
                     addMarkerToCluster(marker);
-                        /*
-                        mMap.addMarker(new MarkerOptions()
-                                .position(new LatLng(marker.getLatitude(), marker.getLongitude()))
-                                .title(marker.getIpAddress()));
-                                */
                 }
                 mNetworkProgress.setProgress(MarkerRequestService.getCurrProgressStatus());
             }
@@ -238,8 +236,12 @@ public class MapsActivity extends AppCompatActivity{
             @Override
             public void onAllMarkersRequested() {
                 String[] markerRequest = getResources().getStringArray(R.array.toast_ip_success_result);
-                Toast.makeText(MapsActivity.this, markerRequest[0]+ MyMarkerManager.getInstance().getMarkerModelCount()
+                Toast.makeText(MapsActivity.this, markerRequest[0]+ mMarkerManager.getMarkerModelCount()
                         + markerRequest[1] + MarkerRequestService.IP_TOTAL_COUNT + markerRequest[2], Toast.LENGTH_LONG).show();
+
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mMarkerManager.getMostRecentMarker().getLatitude(),
+                        mMarkerManager.getMostRecentMarker().getLongitude()), MARKER_ZOOM));
+
                 findViewById(R.id.progress_map).setVisibility(View.GONE);
                 mNetworkProgress.setProgress(0);
             }

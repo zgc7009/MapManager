@@ -108,7 +108,7 @@ public class IpSearchDialog {
 
     public void setupIpSearchFields(TableRow searchDialogRowView, final boolean startIp){
 
-        ((TextView) searchDialogRowView.findViewById(R.id.text_ip_label)).setText(startIp? mResources.getString(R.string.ip_dialog_label_start):
+        ((TextView) searchDialogRowView.findViewById(R.id.text_ip_label)).setText(startIp ? mResources.getString(R.string.ip_dialog_label_start) :
                 mResources.getString(R.string.ip_dialog_label_end));
 
         for(int i = 1; i <= 4; i++){
@@ -128,26 +128,40 @@ public class IpSearchDialog {
                 @Override
                 public void afterTextChanged(Editable s) {
                     if (s.length() == 3) {
-                        if(s.length() == 3 && Integer.parseInt(s.toString()) > 255){
-                            Toast.makeText(mStartIpFields[0].getContext(),
+                        if(Integer.parseInt(s.toString()) > 255){
+                            /*Toast.makeText(mStartIpFields[0].getContext(),
                                     mStartIpFields[0].getContext().getResources().getString(R.string.toast_invalid_ip_range)
-                                    , Toast.LENGTH_LONG).show();
-                            if (startIp)
+                                    , Toast.LENGTH_LONG).show();*/
+                            if (startIp) {
                                 mStartIpFields[arrayPos].setText(s.toString().substring(0, 2));
-                            else
+                                mStartIpFields[arrayPos].setSelection(2);
+                            }
+                            else {
                                 mEndIpFields[arrayPos].setText(s.toString().substring(0, 2));
-                            return;
+                                mEndIpFields[arrayPos].setSelection(2);
+                            }
+                            incrementFocus();
                         }
+                        else if (arrayPos == 3) {
+                            if(startIp)
+                                mEndIpFields[0].requestFocus();
+                        }
+                        else {
+                            incrementFocus();
+                        }
+                    }
+                }
 
-                        if (arrayPos == 3) {
+                private void incrementFocus(){
+                    if (arrayPos == 3) {
+                        if(startIp)
                             mEndIpFields[0].requestFocus();
-                            return;
-                        } else {
-                            if (startIp)
-                                mStartIpFields[arrayPos + 1].requestFocus();
-                            else
-                                mEndIpFields[arrayPos + 1].requestFocus();
-                        }
+                        return;
+                    } else {
+                        if (startIp)
+                            mStartIpFields[arrayPos + 1].requestFocus();
+                        else
+                            mEndIpFields[arrayPos + 1].requestFocus();
                     }
                 }
             });
