@@ -63,9 +63,9 @@ public class PolylineGenerator {
         @Override
         protected PolylineOptions doInBackground(Void... params) {
             List<LatLng> waypoints = new ArrayList<>();
-            waypoints.add(MapsActivity.officeCoords);
-            double lat = MapsActivity.officeCoords.latitude;
-            double lng = MapsActivity.officeCoords.longitude;
+            waypoints.add(MapsActivity.OFFICE_COORDS);
+            double lat = MapsActivity.OFFICE_COORDS.latitude;
+            double lng = MapsActivity.OFFICE_COORDS.longitude;
             for(int i = 0; i < PolylineManager.NUM_POLYLINES; i++) {
                 LatLng nextWaypoint = generateDestinationLatLng(lat, lng);
                 waypoints.add(nextWaypoint);

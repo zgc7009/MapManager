@@ -87,7 +87,7 @@ public class MyMarkerManager {
     }
 
     public MarkerModel[] getAllMarkers(){
-        return (MarkerModel[]) mMarkerModels.toArray();
+        return mMarkerModels.toArray(new MarkerModel[mMarkerModels.size()]);
     }
 
     public MarkerModel getMarkerModel(int pos){
@@ -110,7 +110,7 @@ public class MyMarkerManager {
 
         List<MarkerClusterItem> clusterItems = new ArrayList<>();
         for(MarkerModel marker : mMarkerModels)
-            clusterItems.add(new MarkerClusterItem(Double.valueOf(marker.getLatitude()), Double.valueOf(marker.getLongitude())));
+            clusterItems.add(new MarkerClusterItem(marker.getIpAddress(), Double.valueOf(marker.getLatitude()), Double.valueOf(marker.getLongitude())));
         clusterManager.addItems(clusterItems);
     }
 

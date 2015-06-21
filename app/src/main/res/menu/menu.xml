@@ -9,7 +9,7 @@
 
     <item
         android:id="@+id/show_markers"
-        android:title="Markers" />
+        android:title="Markers"/>
 
     <item
         android:id="@+id/show_polyline_overlay"
@@ -17,7 +17,7 @@
 
     <item
         android:id="@+id/show_polyline_map"
-        android:title="Polyline Map" />
+        android:title="Polyline Map"/>
 
     <item
         android:id="@+id/show_polyline_hybrid"
