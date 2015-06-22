@@ -21,11 +21,11 @@ public class MarkerRequestService extends IntentService {
 
     public static final String START_IP_KEY = KeyGenerator.generateKey("START_IP");
     public static final String END_IP_KEY = KeyGenerator.generateKey(("END_IP"));
+    public static long IP_TOTAL_COUNT = 0;
+    private static long IP_ATTEMPT_COUNT = 0;
 
     private MyMarkerManager mMarkerManager;
     private String mStartIp, mEndIp, mCurrIp;
-    public static long IP_ATTEMPT_COUNT = 0;
-    public static long IP_TOTAL_COUNT = 0;
 
     public MarkerRequestService(){
         super(MarkerRequestService.class.getSimpleName());
@@ -40,6 +40,7 @@ public class MarkerRequestService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         IP_ATTEMPT_COUNT = 0;
+
         mStartIp = intent.getStringExtra(START_IP_KEY);
         mEndIp = intent.getStringExtra(END_IP_KEY);
         if(TextUtils.isEmpty(mStartIp) || TextUtils.isEmpty(mEndIp)) {
@@ -52,7 +53,9 @@ public class MarkerRequestService extends IntentService {
             mStartIp = mEndIp;
             mEndIp = tempMStartIp;
         }
-        IP_TOTAL_COUNT = IpManager.getIpRangeSize(mStartIp, mEndIp) + 1;
+
+        IP_TOTAL_COUNT = IP_TOTAL_COUNT + IpManager.getIpRangeSize(mStartIp, mEndIp) + 1;
+
         mCurrIp = mStartIp;
         makeIpCall(mCurrIp);
     }
@@ -64,7 +67,6 @@ public class MarkerRequestService extends IntentService {
                 new Response.Listener<MarkerModel>() {
                     @Override
                     public void onResponse(MarkerModel response) {
-
                         if (response != null && !(response.getLatitude() == 0 && response.getLongitude() == 0)) {
                             mMarkerManager.addMarker(response);
                             sendSuccessResponse(true);
@@ -95,14 +97,13 @@ public class MarkerRequestService extends IntentService {
 
     private void incrementIpNetworkCall(){
         mCurrIp = IpManager.getNextIpInRange(mCurrIp, mEndIp);
-        if(IP_ATTEMPT_COUNT == IP_TOTAL_COUNT || mCurrIp == null)
+        if(mCurrIp == null)
             mMarkerManager.getListener().onAllMarkersRequested();
         else
             makeIpCall(mCurrIp);
     }
 
     public static int getCurrProgressStatus(){
-
         return (int) (((double) IP_ATTEMPT_COUNT / IP_TOTAL_COUNT) * 100);
     }
 

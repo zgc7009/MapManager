@@ -3,7 +3,7 @@
     
     <string-array name="toast_ip_success_result">
         <item name="toast_ip_success_result_prefix">"Have completed our network calls with "</item>
-        <item name="toast_ip_success_result_middle">" IPs marked of "</item>
+        <item name="toast_ip_success_result_middle">" total IPs successfully marked of "</item>
         <item name="toast_ip_success_result_suffix">" possible IPs"</item>
     </string-array>
 </resources>

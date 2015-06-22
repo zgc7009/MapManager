@@ -46,7 +46,7 @@ public class MapsActivity extends AppCompatActivity{
     public static final double TRANS_LOC_LNG = -78.843486;
     public static final LatLng OFFICE_COORDS = new LatLng(TRANS_LOC_LAT, TRANS_LOC_LNG);
     private static final int MARKER_ZOOM = 3;
-    private static final int MARKER_CLUSTER_FIT_PADDING = -10;
+    private static final int MARKER_CLUSTER_FIT_PADDING = 50;
     private static final int POLYLINE_ZOOM = (int) ((CustomTileProvider.MAX_ZOOM_THRESHOLD + CustomTileProvider.MIN_ZOOM_THRESHOLD) / 2);
     public static final String API_KEY = "AIzaSyCD2VzaeYtBzIrMFpNrR9WAkjYz-tBBKDI";
 
@@ -60,7 +60,7 @@ public class MapsActivity extends AppCompatActivity{
     private MyMarkerManager mMarkerManager;
     private LatLngBounds.Builder mMarkerBoundsBuilder;
     private ClusterManager<MarkerClusterItem> mClusterManager;
-    private ProgressBar mNetworkProgressRound, mNetworkProgressBar;
+    private ProgressBar mNetworkProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -186,9 +186,7 @@ public class MapsActivity extends AppCompatActivity{
      */
     private void setUpMap() {
         if(mDrawType == DrawType.MARKER) {
-            mNetworkProgressRound = (ProgressBar) findViewById(R.id.progress_network_running);
-            mNetworkProgressBar = (ProgressBar) findViewById(R.id.progress_network_status);
-            mNetworkProgressBar.setVisibility((View.VISIBLE));
+            mNetworkProgressBar = (ProgressBar) findViewById(R.id.progress_network);
 
             setUpClusterer();
             finalizeMap();
@@ -266,19 +264,17 @@ public class MapsActivity extends AppCompatActivity{
                 // Attempt to move the map to show all of our markers within our marker bounds (cluster and office)
                 mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mMarkerBoundsBuilder.build(), MARKER_CLUSTER_FIT_PADDING));
 
-                // if we can't see the office there is a chance that we are in no mands land between our clusters and the office, so
-                // move to the last located marker in the cluster to ensure we at least see that
-                if(!mMap.getProjection().getVisibleRegion().latLngBounds.contains(OFFICE_COORDS))
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                            new LatLng(mMarkerManager.getMostRecentMarker().getLatitude(), mMarkerManager.getMostRecentMarker().getLongitude()), MARKER_ZOOM));
+                LatLngBounds projection = mMap.getProjection().getVisibleRegion().latLngBounds;
+                LatLng mostRecentMarkerLocation = new LatLng(mMarkerManager.getMostRecentMarker().getLatitude()
+                        , mMarkerManager.getMostRecentMarker().getLongitude());
+                if(!projection.contains(OFFICE_COORDS) && !projection.contains(mostRecentMarkerLocation))
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(mostRecentMarkerLocation, MARKER_ZOOM));
 
-                findViewById(R.id.progress_map).setVisibility(View.GONE);
-                mNetworkProgressBar.setProgress(0);
-                mNetworkProgressBar.setVisibility(View.GONE);
+                mNetworkProgressBar.setVisibility((View.GONE));
             }
         });
 
-        mNetworkProgressRound.setVisibility(View.VISIBLE);
+        mNetworkProgressBar.setVisibility(View.VISIBLE);
 
         Intent markerService = new Intent(MapsActivity.this, MarkerRequestService.class);
         markerService.putExtra(MarkerRequestService.START_IP_KEY, startIp);
