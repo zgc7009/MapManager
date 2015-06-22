@@ -59,7 +59,6 @@ public class MapsActivity extends AppCompatActivity{
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private MyMarkerManager mMarkerManager;
     private LatLngBounds.Builder mMarkerBoundsBuilder;
-    private LatLngBounds mMarkerBounds;
     private ClusterManager<MarkerClusterItem> mClusterManager;
     private ProgressBar mNetworkProgressRound, mNetworkProgressBar;
 
@@ -265,8 +264,7 @@ public class MapsActivity extends AppCompatActivity{
                         + markerRequest[1] + MarkerRequestService.IP_TOTAL_COUNT + markerRequest[2], Toast.LENGTH_LONG).show();
 
                 // Attempt to move the map to show all of our markers within our marker bounds (cluster and office)
-                mMarkerBounds = mMarkerBoundsBuilder.build();
-                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mMarkerBounds, MARKER_CLUSTER_FIT_PADDING));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mMarkerBoundsBuilder.build(), MARKER_CLUSTER_FIT_PADDING));
 
                 // if we can't see the office there is a chance that we are in no mands land between our clusters and the office, so
                 // move to the last located marker in the cluster to ensure we at least see that
@@ -330,8 +328,6 @@ public class MapsActivity extends AppCompatActivity{
 
         mMarkerBoundsBuilder = new LatLngBounds.Builder();
         mMarkerBoundsBuilder.include(officeMarker.getPosition());
-        mMarkerBounds = mMarkerBoundsBuilder.build();
-
         if(mDrawType == DrawType.MARKER)
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(OFFICE_COORDS, MARKER_ZOOM));
         else
