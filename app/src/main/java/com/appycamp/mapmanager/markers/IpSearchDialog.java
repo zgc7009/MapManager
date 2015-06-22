@@ -72,20 +72,6 @@ public class IpSearchDialog {
         AlertDialog.Builder builder = new AlertDialog.Builder(searchDialogView.getContext())
                 .setTitle(mResources.getString(R.string.ip_dialog_title))
                 .setView(searchDialogView)
-                /*
-                .setPositiveButton("Scan", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        new ValidateIpTask(new OnIpSearchListener() {
-                            @Override
-                            public void onSearchRequested(String startIp, String endIp) {
-                                if(mListener != null)
-                                    mListener.onSearchRequested(startIp, endIp);
-                            }
-                        }, new EditText[][]{mStartIpFields, mEndIpFields});
-                    }
-                })
-                */
                 .setNegativeButton(mResources.getString(R.string.ip_dialog_button_negative), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -116,6 +102,11 @@ public class IpSearchDialog {
             int id = searchDialogRowView.getResources().getIdentifier("field_ip_" + i, "id", searchDialogRowView.getContext().getPackageName());
             final EditText ipField = (EditText) searchDialogRowView.findViewById(id);
 
+            if(startIp)
+                mStartIpFields[arrayPos] = ipField;
+            else
+                mEndIpFields[arrayPos] = ipField;
+
             ipField.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -128,27 +119,24 @@ public class IpSearchDialog {
                 @Override
                 public void afterTextChanged(Editable s) {
                     if (s.length() == 3) {
+                        ipField.removeTextChangedListener(this);
+                        //if(startIp) mStartIpFields[arrayPos].removeTextChangedListener(this);
+
                         if(Integer.parseInt(s.toString()) > 255){
                             /*Toast.makeText(mStartIpFields[0].getContext(),
                                     mStartIpFields[0].getContext().getResources().getString(R.string.toast_invalid_ip_range)
-                                    , Toast.LENGTH_LONG).show();*/
-                            if (startIp) {
-                                mStartIpFields[arrayPos].setText(s.toString().substring(0, 2));
-                                mStartIpFields[arrayPos].setSelection(2);
-                            }
-                            else {
-                                mEndIpFields[arrayPos].setText(s.toString().substring(0, 2));
-                                mEndIpFields[arrayPos].setSelection(2);
-                            }
+                                    , Toast.LENGTH_LONG).show(); */
+
+                            ipField.setText(s.toString().substring(0, 2));
+                            ipField.setSelection(2);
                             incrementFocus();
                         }
-                        else if (arrayPos == 3) {
-                            if(startIp)
-                                mEndIpFields[0].requestFocus();
-                        }
-                        else {
+                        else if (arrayPos == 3 && startIp)
+                            mEndIpFields[0].requestFocus();
+                        else
                             incrementFocus();
-                        }
+
+                        ipField.addTextChangedListener(this);
                     }
                 }
 
@@ -165,11 +153,6 @@ public class IpSearchDialog {
                     }
                 }
             });
-
-            if(startIp)
-                mStartIpFields[arrayPos] = ipField;
-            else
-                mEndIpFields[arrayPos] = ipField;
         }
     }
 

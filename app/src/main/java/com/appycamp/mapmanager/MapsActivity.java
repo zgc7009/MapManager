@@ -80,15 +80,17 @@ public class MapsActivity extends AppCompatActivity{
         switch(mDrawType){
             case POLYLINE_OVERLAY:
                 menu.removeItem(R.id.show_polyline_overlay);
+                menu.removeItem(R.id.search);
                 break;
             case POLYLINE_MAP:
                 menu.removeItem(R.id.show_polyline_map);
+                menu.removeItem(R.id.search);
                 break;
             case POLYLINE_HYBRID:
                 menu.removeItem(R.id.show_polyline_hybrid);
+                menu.removeItem(R.id.search);
                 break;
             default:
-                menu.removeItem(R.id.search);
                 menu.removeItem(R.id.show_markers);
         }
 
