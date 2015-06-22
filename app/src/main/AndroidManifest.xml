@@ -43,6 +43,9 @@
         <service
             android:name=".markers.MarkerRequestService"
             android:exported="false"/>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="065e226ac40e5a3f81b8d11e5eeed8ea2d3770f4" />
     </application>
 
 </manifest>
