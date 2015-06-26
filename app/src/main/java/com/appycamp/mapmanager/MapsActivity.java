@@ -42,9 +42,9 @@ public class MapsActivity extends AppCompatActivity{
     public static final String MY_HOME_IP = "66.57.4.181";
     public static final String DUMMY_TEST_IP = "66.57.10.200";
 
-    public static final double TRANS_LOC_LAT = 35.876189;
-    public static final double TRANS_LOC_LNG = -78.843486;
-    public static final LatLng OFFICE_COORDS = new LatLng(TRANS_LOC_LAT, TRANS_LOC_LNG);
+    public static final double HOME_LOC_LAT = 39.78373;
+    public static final double HOME_LOC_LNG = -100.445882;
+    public static final LatLng OFFICE_COORDS = new LatLng(HOME_LOC_LAT, HOME_LOC_LNG);
     private static final int MARKER_ZOOM = 3;
     private static final int MARKER_CLUSTER_FIT_PADDING = 50;
     private static final int POLYLINE_ZOOM = (int) ((CustomTileProvider.MAX_ZOOM_THRESHOLD + CustomTileProvider.MIN_ZOOM_THRESHOLD) / 2);
@@ -318,7 +318,7 @@ public class MapsActivity extends AppCompatActivity{
         MarkerOptions officeMarker = new MarkerOptions()
                 .title(getString(R.string.marker_title_trans_loc))
                 .snippet(getString(R.string.marker_label_trans_loc))
-                .position(new LatLng(TRANS_LOC_LAT, TRANS_LOC_LNG))
+                .position(new LatLng(HOME_LOC_LAT, HOME_LOC_LNG))
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
         mMap.addMarker(officeMarker);
 

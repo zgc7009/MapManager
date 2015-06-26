@@ -17,7 +17,7 @@
     <string name="toast_generic_error_prefix">"Error, "</string>
 
     <!-- Map -->
-    <string name="marker_title_trans_loc">TransLoc Office</string>
+    <string name="marker_title_trans_loc">Home</string>
     <string name="marker_label_trans_loc">Where dreams come true</string>
 
     <!-- IP Dialog -->
