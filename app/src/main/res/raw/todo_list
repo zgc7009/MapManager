@@ -1,7 +1,0 @@
-Make sure to properly check the db via our ContentProvider to see if we have the ip stored before going to the network
-
-Keep a local cache of (x [see how big we can get it before our heap gets too big]) IPs to reduce db/network calls
-
-BONUS
-   Testing with Espresso
-   Finish Polyline implementation
